@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 
@@ -7,7 +7,7 @@ def clean_data(df):
     # PADRONIZAÇÃO DE CONTEÚDO STRING
 
     df.columns = df.columns.str.upper()
-    df.columns = df.columns.str.replace(" ", "_")
+    df.columns = df.columns.str.replace(' ', '_')
     string_cols = df.select_dtypes(include=['object', 'string']).columns
     df[string_cols] = df[string_cols].apply(lambda x: x.astype(str).str.strip().str.upper())
 
@@ -15,7 +15,6 @@ def clean_data(df):
 
     # Eliminação de colunas desnecessárias
     df = df.drop(columns=['CUSTOMER_NAME', 'POSTAL_CODE', 'ORDER_ID'])
-
 
     # Padronização de dados temporais
     df['ORDER_DATE'] = pd.to_datetime(df['ORDER_DATE'])
@@ -49,7 +48,7 @@ def clean_data(df):
     df['NET_SALES'] = df['SALES'] * df['QUANTITY'] * (1-df['DISCOUNT'])
 
     df = df.drop(columns=['SALES', 'QUANTITY', 'DISCOUNT'])
-    df = df.rename(columns={"SUB-CATEGORY": "SUB_CATEGORY"})
+    df = df.rename(columns={'SUB-CATEGORY': 'SUB_CATEGORY'})
 
     return df
 
@@ -57,6 +56,7 @@ def feature_engineering(df):
     df['NET_SALES_LOG'] = np.log1p(df['NET_SALES'])
 
     return df
+
 
 def treat_outliers(df):
     q_low = 0.15
@@ -82,6 +82,7 @@ def scale_data(df, cols):
     scaler = StandardScaler()
     df[[col + '_SCALED' for col in cols]] = scaler.fit_transform(df[cols])
     return df, scaler
+
 
 def preprocess(df):
     df = clean_data(df)
@@ -119,16 +120,19 @@ def data_clustering(df):
     cols_one_hot = ['SHIP_MODE', 'SEGMENT', 'REGION', 'CATEGORY', 'ORDER_DATE']
 
     X_scaled = pd.get_dummies(
-    X_scaled,
-    columns=cols_one_hot)
+        X_scaled,
+        columns=cols_one_hot,
+    )
 
     return X_scaled, df_clustering
+
 
 def data_prediction(df_clustering):
     df_predict = df_clustering[['ORDER_DATE', 'SHIP_MODE', 'PROFIT_SCALED', 'NET_SALES_SCALED', 'REGION', 'CLUSTER']].copy()
     df_predict = pd.get_dummies(
         df_predict,
-        columns=['REGION'])
+        columns=['REGION'],
+    )
 
     state_map = {
         'STANDARD CLASS': '0',
@@ -149,5 +153,5 @@ def data_prediction(df_clustering):
         cluster: df_predict[df_predict['CLUSTER'] == cluster]
         for cluster in df_predict['CLUSTER'].unique()
     }
-
+    
     return df_predict
