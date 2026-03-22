@@ -1,7 +1,5 @@
 # Case_Einstein_AM
 
-# EBAC: Profissão cientista de dados
-
 ## 📝 Descrição
 
 1. Instalar dependências

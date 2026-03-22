@@ -6,6 +6,7 @@ from sklearn.cluster import KMeans
 
 
 def train_kmeans(X, k=3, random_state=0, output_path=None):
+    # Treina um modelo K-Means com melhores parâmetro e salva modelo
     model = KMeans(
         n_clusters=k,
         random_state=random_state,
@@ -23,6 +24,9 @@ def train_kmeans(X, k=3, random_state=0, output_path=None):
     return model
 
 def train_arima_by_cluster(df_temporal_dict, train_ratio=0.8, output_dir=None):
+
+    # Treina um modelo ARIMA para cada cluster e salva os modelos
+    
     arima_results = {}
 
     for i, data in df_temporal_dict.items():
