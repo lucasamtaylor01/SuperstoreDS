@@ -1,10 +1,12 @@
 from pathlib import Path
 import pandas as pd
 
-from src.utils import preprocess, clean_data, data_clustering
+from src.utils import preprocess, clean_data, data_clustering, data_prediction
 from src.build_model import (
     train_model,
-    save_model
+    save_model,
+    train_predict_models_by_cluster,
+    train_kmeans_from_params,
 )
 from src.predict import predict
 from src.analytics import cluster_summary
@@ -43,12 +45,27 @@ print("Dados para modelagem exportados com sucesso!")
 
 # MODELO DE CLUSTERING (K-MEANS)
 X_scaled, df_clustering = data_clustering(df_modelagem)
-model_clustering = train_model(X_scaled, n_clusters=3)
+model_clustering = train_kmeans_from_params(
+    X=X_scaled,
+    best_kmeans_csv_path=MODEL_DIR / "BEST_KMEANS_PARAMS.csv",
+    output_model_path=OUTPUT_DIR / "models_predict" / "kmeans_clustering.joblib",
+)
 df_clustering["CLUSTER"] = predict(model_clustering, X_scaled)
 df_clustering.to_csv(MODEL_DIR / "SUPERSTORE_DATASET_CLUSTERING.csv", index=False)
 
 print("Dados de clustering exportados com sucesso!")
 
+
+# MODELO DE PREDIÇÃO DE PROFIT POR CLUSTER (REGRESSÃO LINEAR COM REGULARIZAÇÃO)
+df_predict = data_prediction(df_clustering)
+
+trained_models = train_predict_models_by_cluster(
+    df_predict_by_cluster=df_predict,
+    best_models_csv_path=MODEL_DIR / "BEST_MODELS_BY_CLUSTER.csv",
+    output_dir=OUTPUT_DIR / "models_predict",
+)
+
+print(f"Modelos de predição treinados por cluster: {len(trained_models)}")
 
 
 print("Pipeline finalizado com sucesso!")

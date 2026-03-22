@@ -123,3 +123,31 @@ def data_clustering(df):
     columns=cols_one_hot)
 
     return X_scaled, df_clustering
+
+def data_prediction(df_clustering):
+    df_predict = df_clustering[['ORDER_DATE', 'SHIP_MODE', 'PROFIT_SCALED', 'NET_SALES_SCALED', 'REGION', 'CLUSTER']].copy()
+    df_predict = pd.get_dummies(
+        df_predict,
+        columns=['REGION'])
+
+    state_map = {
+        'STANDARD CLASS': '0',
+        'SECOND CLASS': '1',
+        'FIRST CLASS': '2',
+        'SAME DAY': '3'
+    }
+
+    df_predict['SHIP_MODE'] = df_predict['SHIP_MODE'].map(state_map)
+    df_predict['SHIP_MODE'] = df_predict['SHIP_MODE'].astype('Int64')
+
+    df_predict['ORDER_DATE'] = pd.to_datetime(df_predict['ORDER_DATE'], errors='coerce')
+    df_predict['ORDER_YEAR'] = df_predict['ORDER_DATE'].dt.year
+
+    df_predict = df_predict.drop(columns=['ORDER_DATE'])
+
+    df_predict = {
+        cluster: df_predict[df_predict['CLUSTER'] == cluster]
+        for cluster in df_predict['CLUSTER'].unique()
+    }
+
+    return df_predict
