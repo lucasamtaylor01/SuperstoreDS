@@ -1,0 +1,5 @@
+method,k
+silhouette,3.0
+calinski_harabasz,2.0
+davies_bouldin,7.0
+elbow,

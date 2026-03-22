@@ -29,7 +29,7 @@ print('[1/4] Dados tratados exportados com sucesso.\n')
 
 
 # TRATAMENTO DE DADOS PARA MODELAGEM
-df_modelagem = preprocess(df)
+df_modelagem = preprocess(df_tratado)
 df_modelagem.to_csv(PROCESSED_DATA_DIR / 'SUPERSTORE_MODELAGEM.csv', index=False)
 
 print('[2/4] Dados para modelagem exportados com sucesso.\n')
@@ -43,6 +43,7 @@ model_clustering = train_kmeans(
     random_state=0,
     output_path=OUTPUT_DIR / 'models_predict' / 'kmeans_clustering.joblib'
 )
+
 df_clustering['CLUSTER'] = predict(model_clustering, X_clustering)
 df_clustering.to_csv(
     MODEL_DIR / 'SUPERSTORE_CLUSTERING.csv',

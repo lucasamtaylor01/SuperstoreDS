@@ -12,6 +12,9 @@ def clean_data(df):
     df[string_cols] = df[string_cols].apply(lambda x: x.astype(str).str.strip().str.upper())
     df = df.rename(columns={'SUB-CATEGORY': 'SUB_CATEGORY'})
     
+    # Tratamento de colunas de localização
+    df = df.drop_duplicates(subset='ORDER_ID')
+
     # Eliminação de colunas irrelevantes
     df = df.drop(columns=['CUSTOMER_NAME', 'POSTAL_CODE', 'ORDER_ID'])
 
@@ -22,8 +25,7 @@ def clean_data(df):
     # Eliminação de registros inconsistentes e duplicados
     df = df[df['SHIP_DATE'] >= df['ORDER_DATE']]
 
-    # Tratamento de colunas de localização
-    df = df.drop_duplicates(subset='ORDER_ID')
+
     state_map = {
         'ALABAMA': 'AL', 'ALASKA': 'AK', 'ARIZONA': 'AZ', 'ARKANSAS': 'AR',
         'CALIFORNIA': 'CA', 'COLORADO': 'CO', 'CONNECTICUT': 'CT',
@@ -81,16 +83,13 @@ def treat_outliers(df):
     return df
 
 def scale_data(df, cols):
-
-    # Escalonamento de PROFIT e NET_SALES
+    # Padronização de PROFIT e NET_SALES
     scaler = StandardScaler()
     df[[col + '_SCALED' for col in cols]] = scaler.fit_transform(df[cols])
     return df, scaler
 
 def preprocess(df):
-
     # Pré-processamento para modelagem
-    df = clean_data(df)
     df = scale_data(df, ['PROFIT', 'NET_SALES'])[0]
     df = treat_outliers(df)
     return df
@@ -121,7 +120,7 @@ def data_clustering(df):
         'PROFIT_SCALED': 'sum'
     })
 
-    # Preparação dos dados para clustering (one-hot encoding e escalonamento)
+    # Preparação dos dados para clustering (one-hot encoding)
     X_scaled = df_clustering.drop(columns=['CUSTOMER_ID', 'NET_SALES', 'PROFIT'])
     X_scaled['ORDER_DATE'] = pd.to_datetime(df_clustering['ORDER_DATE'], errors='coerce').dt.year
     cols_one_hot = ['SHIP_MODE', 'SEGMENT', 'REGION', 'CATEGORY', 'ORDER_DATE']
